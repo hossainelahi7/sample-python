@@ -33,10 +33,10 @@ X_train = elect_train[["minority", "bachelor"]]
 X_test = elect_test[["minority", "bachelor"]]
 
 # Set the column "won" as the train response variable
-y_train = elect_train[["won"]]
+y_train = elect_train["won"]
 
 # Set the column "won" as the test response variable
-y_test = elect_test[["won"]]
+y_test = elect_test["won"]
 
 print("X_train shape:", X_train.shape)
 print("y_train shape:", y_train.shape)
