@@ -23,11 +23,12 @@ elect_test = pd.read_csv("data/county_election_test.csv")
 elect_train.head()
 
 ### edTest(test_response) ###
-x_train = elect_train[["minority", "bachelor"]]
-x_test = elect_test[["minority", "bachelor"]]
 # Creating the response variable
 elect_train["_estimator"] = elect_train["trump"] > elect_train["clinton"].astype(int)
 elect_test["_estimator"] = elect_test["trump"] > elect_test["clinton"].astype(int)
+
+x_train = elect_train.drop(columns=['_estimator', 'trump', 'clinton'])
+x_test = elect_test.drop(columns=['_estimator', 'trump', 'clinton'])
 # Set all the rows in the train data where "trump" value is more than "clinton"
 # Ensure the results are binary i.e. 0s or 1s
 y_train = elect_train["_estimator"]
@@ -39,24 +40,30 @@ y_test = elect_test["_estimator"]
 # Plot "minority" vs "bachelor" from the train data for Trump and Clinton
 # Plot minority on the x-axis and bachelor on the y-axis
 # Use different colours to depict data points associated with Trump and Clinton
+trump_data = elect_train[elect_train["_estimator"] == 1]
+clinton_data = elect_train[elect_train["_estimator"] == 0]
 
-plt.scatter(elect_train[elect_train["_estimator"]==1]["minority"], elect_train[elect_train["_estimator"]==1]["bachelor"],marker=".",color="blue",label="Trump", s=50, alpha=0.4)
-plt.scatter(elect_train[elect_train["_estimator"]==0]["minority"], elect_train[elect_train["_estimator"]==0]["bachelor"],marker=".",color="green",label="Clinton", s=50, alpha=0.4)
+# Create the scatter plot
+plt.figure(figsize=(10, 6))
+plt.scatter(trump_data["minority"], trump_data["bachelor"], color='red', label='Trump', alpha=0.6)
+plt.scatter(clinton_data["minority"], clinton_data["bachelor"], color='blue', label='Clinton', alpha=0.6)
 
-plt.xlabel("minority")
-plt.ylabel("bachelor")
+# Add labels, title, and legend
+plt.xlabel("Minority")
+plt.ylabel("Bachelor")
+plt.title("Minority vs Bachelor (Train Data)")
 plt.legend()
-plt.show();
+plt.grid(True)
+plt.show()
 
 
 ### edTest(test_model) ###
 # Initialize a Decision Tree classifier of depth 3
 # Choose Gini as the splitting criteria
 dtree = DecisionTreeClassifier(criterion='gini', max_depth=3)
-X_train = elect_train[["minority", "bachelor"]]
-X_test = elect_test[['minority', 'bachelor']]
 # Fit the classifier on the train data
 # but only use the minority column as the predictor variable
+X_train = elect_train[["minority"]]
 dtree.fit(X_train, y_train)
 
 
@@ -66,10 +73,9 @@ plt.figure(figsize=(12,8))
 # Plot the Decision Tree trained above with parameters filled as True
 tree.plot_tree(
     dtree,
-    feature_names=dtree.feature_names_in_,
+    feature_names=X_train.columns,
     class_names=['clinton', 'trump'],
-    filled=True,
-    precision=0
+    filled=True
 )
 
 plt.title("Decision Tree for 2016 Presidential Election Prediction")
